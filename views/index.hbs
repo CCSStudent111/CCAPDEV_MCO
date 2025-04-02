@@ -20,6 +20,18 @@
     </div>
 </div>
 
+<div id="editprofilebox" class="editprofilebox">
+    <div class="editprofilecontent">
+        <span class="closebtn" onclick="closeEditProfile()">X</span> 
+        <h2>Edit your profile!</h2>
+        <form id="editProfileForm" action="/profile/edit" method="get">
+            <input type="text" id="username" name="username" placeholder="New Username.." value="{{user.username}}">
+            <input type="email" id="email" name="email" placeholder="New Email.." value="{{user.email}}">
+            <button type="submit" class="submitprofile">Submit</button>
+        </form>
+    </div>
+</div>
+
 {{#each posts}}
 <div class="content">
     <h1>{{this.title}}</h1>
