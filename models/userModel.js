@@ -36,7 +36,7 @@ async function updateUser(username, updates) {
 }
 
 async function closeConnection() {
-    await client.close();
+    await db.closeConnection();
 }
 
 module.exports = {

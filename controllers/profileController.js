@@ -30,8 +30,35 @@ async function login(req, res) {
 
         if (isMatch) {
             // Store user in session
-            tempuserhehe.setcurrentUser(req, user);
-            return res.redirect('/');
+            // Make a clean copy of user to avoid potential serialization issues
+            const sessionUser = {
+                _id: user._id.toString(), // Ensure ID is a string
+                username: user.username,
+                email: user.email,
+                joinDate: user.joinDate,
+                posts: user.posts,
+                comments: user.comments
+            };
+            
+            // Set user in session directly and via helper
+            req.session.user = sessionUser;
+            tempuserhehe.setcurrentUser(req, sessionUser);
+            
+            console.log("User logged in successfully:", sessionUser.username);
+            console.log("Session after login:", req.sessionID);
+            
+            // Save session explicitly before redirect
+            req.session.save(err => {
+                if (err) {
+                    console.error("Session save error:", err);
+                    return res.status(500).render('login', {
+                        title: 'Login',
+                        layout: 'loginLayout',
+                        error: 'Error creating session. Please try again.'
+                    });
+                }
+                return res.redirect('/');
+            });
         } else {
             return res.render('login', { 
                 title: 'Login', 
@@ -94,11 +121,34 @@ async function register(req, res) {
         const newUser = await userModel.createUser(userData);
         
         // Set user data in session (with ID from database)
-        userData._id = newUser.insertedId;
-        tempuserhehe.setcurrentUser(req, userData);
-
-        // Redirect to home page
-        return res.redirect('/'); 
+        const sessionUser = {
+            _id: newUser.insertedId.toString(),
+            username: userData.username, 
+            email: userData.email,
+            joinDate: userData.joinDate,
+            posts: userData.posts,
+            comments: userData.comments
+        };
+        
+        // Set user in session directly and via helper
+        req.session.user = sessionUser;
+        tempuserhehe.setcurrentUser(req, sessionUser);
+        
+        console.log("User registered successfully:", sessionUser.username);
+        console.log("Session after registration:", req.sessionID);
+        
+        // Save session explicitly before redirect
+        req.session.save(err => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).render('register', {
+                    title: 'Register',
+                    layout: 'loginLayout',
+                    error: 'Error creating session. Please try again.'
+                });
+            }
+            return res.redirect('/');
+        });
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).render('register', { 
@@ -111,10 +161,15 @@ async function register(req, res) {
 
 // logout - clear the session
 function logout(req, res) {
+    console.log("Logging out user:", req.session.user ? req.session.user.username : "No user in session");
+    
     req.session.destroy(err => {
         if (err) {
             console.error('Error destroying session:', err);
+            return res.status(500).send('Error during logout. Please try again.');
         }
+        // Clear any cookies
+        res.clearCookie('connect.sid');
         res.render('logout', { title: 'Logout' });
     });
 }

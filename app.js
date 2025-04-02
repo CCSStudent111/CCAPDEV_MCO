@@ -12,7 +12,7 @@
 
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo'); // Add this package for session storage
+const MongoStore = require('connect-mongo');
 const path = require('path');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
@@ -20,8 +20,10 @@ const { initializeDatabase } = require('./models/dbInit');
 const db = require('./db');
 const app = express();
 
-//Initialize and reset the sample data, this will reset the state. comment this out if you want the data to not be reset when running app.js again
-initializeDatabase().catch(console.error);
+// Initialize database only in development
+if (process.env.NODE_ENV !== 'production') {
+    initializeDatabase().catch(console.error);
+}
 
 // Middleware to parse incoming request data
 app.use(express.json());
@@ -31,16 +33,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: process.env.SESSION_SECRET || 'my_secret_key',
     resave: false,
-    saveUninitialized: false, // Changed to false for better security
+    saveUninitialized: false,
     store: MongoStore.create({ 
         mongoUrl: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/forumdb",
-        ttl: 14 * 24 * 60 * 60, // = 14 days. Default
-        autoRemove: 'native'
+        ttl: 14 * 24 * 60 * 60, // = 14 days
+        autoRemove: 'native',
+        crypto: {
+            secret: process.env.SESSION_SECRET || 'my_secret_key'
+        }
     }),
     cookie: {
         httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
-        maxAge: 30 * 24 * 60 * 60 * 1000,  // Default cookie expiration (30 days)
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60 * 1000,  // 30 days
+        sameSite: 'lax'
     }
 }));
 
@@ -62,6 +68,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Debug middleware - log session data
+app.use((req, res, next) => {
+    console.log("Session ID:", req.sessionID);
+    console.log("Session User:", req.session.user ? req.session.user.username : 'No user in session');
+    next();
+});
+
 // Pass user from session to locals for templates
 app.use((req, res, next) => {
     res.locals.currentUser = req.session.user || null;
@@ -70,8 +83,20 @@ app.use((req, res, next) => {
 
 //access page
 app.get('/', postController.viewallPost);
-app.get('/login', (req, res) => res.render('login', { title: 'Login', layout: 'loginLayout' }));
-app.get('/register', (req, res) => res.render('register', { title: 'Register', layout: 'loginLayout' }));
+app.get('/login', (req, res) => {
+    // If already logged in, redirect to home
+    if (req.session.user) {
+        return res.redirect('/');
+    }
+    res.render('login', { title: 'Login', layout: 'loginLayout' });
+});
+app.get('/register', (req, res) => {
+    // If already logged in, redirect to home
+    if (req.session.user) {
+        return res.redirect('/');
+    }
+    res.render('register', { title: 'Register', layout: 'loginLayout' });
+});
 app.get('/logout', profileController.logout);
 app.get('/post/:id', postController.getpostID);
 
@@ -103,6 +128,12 @@ function authenticateSession(req, res, next) {
 // Protected routes example
 app.get('/profile', authenticateSession, (req, res) => {
     res.render('profile', { title: 'Your Profile', user: req.session.user });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error("Application error:", err);
+    res.status(500).send('Something went wrong! Please try again later.');
 });
 
 const PORT = process.env.PORT || 3000;

@@ -1,4 +1,4 @@
-// db.js - Modified version for MongoDB Atlas support
+
 const { MongoClient } = require('mongodb');
 
 // Use environment variable for MongoDB URI (will be set in Render.com)
@@ -10,14 +10,18 @@ const client = new MongoClient(MONGODB_URI, {
     // These options help with Atlas connectivity
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    maxPoolSize: 50, // Adjust based on expected load
+    maxPoolSize: 50,
     connectTimeoutMS: 30000
 });
 
 // Connect to database and get collection
 async function getCollection(collectionName) {
     try {
-        await client.connect();
+        // Don't reconnect if already connected
+        if (!client.topology || !client.topology.isConnected()) {
+            await client.connect();
+            console.log(`Connected to MongoDB for collection: ${collectionName}`);
+        }
         return client.db(DB_NAME).collection(collectionName);
     } catch (error) {
         console.error("Error connecting to MongoDB:", error);
@@ -27,7 +31,12 @@ async function getCollection(collectionName) {
 
 // Function to close connection
 async function closeConnection() {
-    await client.close();
+    try {
+        await client.close();
+        console.log("MongoDB connection closed successfully");
+    } catch (error) {
+        console.error("Error closing MongoDB connection:", error);
+    }
 }
 
 // Handle process termination
@@ -36,7 +45,7 @@ function signalHandler() {
     client.close()
         .then(() => {
             console.log("MongoDB Connection Closed");
-            process.exit();
+            process.exit(0);
         })
         .catch(err => {
             console.error("Error closing MongoDB connection:", err);
