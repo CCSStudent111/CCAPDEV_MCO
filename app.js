@@ -10,44 +10,39 @@
  * 
 */
 
-
 const express = require('express');
-const session = require('express-session'); 
-
+const session = require('express-session');
+const MongoStore = require('connect-mongo'); // Add this package for session storage
 const path = require('path');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const { initializeDatabase } = require('./models/dbInit');
-const tempuserhehe = require('./models/tempuserhehe');
+const db = require('./db');
 const app = express();
 
-
-//Initialize and reset the sample data, this will reset the state. comment this out if you want the data to not be reset when running app.js againn
+//Initialize and reset the sample data, this will reset the state. comment this out if you want the data to not be reset when running app.js again
 initializeDatabase().catch(console.error);
 
 // Middleware to parse incoming request data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up session middleware
+// Set up session middleware with MongoStore for persistent sessions
 app.use(session({
-    secret: 'my_secret_key',  // Use session secret from environment variable
+    secret: process.env.SESSION_SECRET || 'my_secret_key',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false, // Changed to false for better security
+    store: MongoStore.create({ 
+        mongoUrl: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/forumdb",
+        ttl: 14 * 24 * 60 * 60, // = 14 days. Default
+        autoRemove: 'native'
+    }),
     cookie: {
         httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production (ito yung sa https)
-        maxAge: 30 * 24 * 60 * 60 * 1000,  // Default cookie expiration (30 days - common value)
+        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
+        maxAge: 30 * 24 * 60 * 60 * 1000,  // Default cookie expiration (30 days)
     }
 }));
-
-// Initialize MongoDB connection
-async function connectToDB() {
-    await client.connect();
-    console.log("Connected to MongoDB");
-    return client.db(databaseName);
-}
-
 
 //controller files
 const profileController = require('./controllers/profileController');
@@ -67,9 +62,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
+// Pass user from session to locals for templates
 app.use((req, res, next) => {
-    res.locals.currentUser = tempuserhehe.getcurrentUser();
+    res.locals.currentUser = req.session.user || null;
     next();
 });
 
@@ -80,7 +75,7 @@ app.get('/register', (req, res) => res.render('register', { title: 'Register', l
 app.get('/logout', profileController.logout);
 app.get('/post/:id', postController.getpostID);
 
-//access registration
+//access registration and login
 app.post('/login', profileController.login);
 app.post('/register', profileController.register);
 
@@ -97,73 +92,20 @@ app.post('/comment/add', commentController.addComment);
 app.post('/comment/edit/:id', commentController.editComment);
 app.post('/comment/delete/:id', commentController.deleteComment);
 
-// Login Route - Handles user authentication
-app.post('/login', async (req, res) => {
-    const { username, password, rememberMe } = req.body;  // rememberMe is true or false
-
-    // Use your db module
-    const db = require('./db');
-
-    const user = await db.collection(usersCollection).findOne({ username });
-
-    if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Compare provided password with the stored hashed password
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordCorrect) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Store user session data (user information)
-    req.session.user = { username: user.username, email: user.email };
-
-    // Adjust session expiration based on "Remember Me" flag
-    if (rememberMe) {
-        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;  // 30 days
-    } else {
-        req.session.cookie.maxAge = 15 * 60 * 1000;  // 15 minutes
-    }
-
-    res.status(200).json({ message: 'Login successful' });
-});
-
 // Middleware to protect routes (ensure the user is authenticated)
 function authenticateSession(req, res, next) {
     if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' }); // return status 401 (meaning unauthorized user)
+        return res.redirect('/login');
     }
     next();
 }
 
-// Profile Route - Only accessible to authenticated users
+// Protected routes example
 app.get('/profile', authenticateSession, (req, res) => {
-    res.status(200).json({ message: 'Welcome to your profile', user: req.session.user });
-});
-
-// Logout Route - Destroys the session
-app.post('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Could not log out' });
-        }
-        res.clearCookie('connect.sid');  // Clear session cookie
-        res.status(200).json({ message: 'Logged out successfully' });
-    });
+    res.render('profile', { title: 'Your Profile', user: req.session.user });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-// Start the Express server
-/*
-app.listen(3000, () => {
-    console.log('Server running on http://localhost:3000');
-});*/
-
-
-// server.listen(3000, () => console.log("Server running on port 3000"));

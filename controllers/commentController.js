@@ -7,7 +7,7 @@ async function addComment(req, res) {
     try {
         const { content, postId } = req.body;
         
-        //go to login if no temp user
+        //go to login if no session user
         const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
@@ -23,6 +23,8 @@ async function addComment(req, res) {
             comments: currentUser.comments + 1
         });
         currentUser.comments += 1;
+        // Update session with new comment count
+        req.session.user = currentUser;
         
         res.redirect('/post/' + postId);
     } catch (error) {
@@ -41,7 +43,7 @@ async function deleteComment(req, res) {
             return res.status(404).send('comment not found.');
         }
         
-        // get temp user
+        // get session user
         const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
@@ -54,11 +56,13 @@ async function deleteComment(req, res) {
         
         await commentModel.deleteComment(cID);
         
-        // decerement the comment count
+        // decrement the comment count
         await userModel.updateUser(currentUser.username, {
             comments: Math.max(0, currentUser.comments - 1)
         });
         currentUser.comments = Math.max(0, currentUser.comments - 1);
+        // Update session with new comment count
+        req.session.user = currentUser;
         
         res.redirect('/post/' + comment.postId);
     } catch (error) {

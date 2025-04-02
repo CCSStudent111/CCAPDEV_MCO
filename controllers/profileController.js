@@ -29,6 +29,7 @@ async function login(req, res) {
         console.log('Password Match:', isMatch);
 
         if (isMatch) {
+            // Store user in session
             tempuserhehe.setcurrentUser(req, user);
             return res.redirect('/');
         } else {
@@ -79,23 +80,22 @@ async function register(req, res) {
         console.log('Plain Password:', plainPassword);
         console.log('Hashed Password:', hashedPassword);
 
-        // Save user
-        const newUser = await userModel.createUser({ 
+        // Create user with complete profile data
+        const userData = { 
             username, 
             password: hashedPassword, 
-            email 
-        });
-
-        // Set the current user
-        tempuserhehe.setcurrentUser(req, {
-            username,
-            email, 
-            password: hashedPassword,
-            _id: newUser.insertedId,
+            email,
             joinDate: new Date(),
             posts: 0,
             comments: 0
-        });
+        };
+        
+        // Save user
+        const newUser = await userModel.createUser(userData);
+        
+        // Set user data in session (with ID from database)
+        userData._id = newUser.insertedId;
+        tempuserhehe.setcurrentUser(req, userData);
 
         // Redirect to home page
         return res.redirect('/'); 
@@ -109,10 +109,14 @@ async function register(req, res) {
     }
 }
 
-// logout
+// logout - clear the session
 function logout(req, res) {
-    tempuserhehe.setcurrentUser(req, null);
-    res.render('logout', { title: 'Logout' });
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+        res.render('logout', { title: 'Logout' });
+    });
 }
 
 module.exports = {

@@ -7,7 +7,7 @@ const tempuserhehe = require('../models/tempuserhehe');
 async function viewallPost(req, res) {
     try {
         const posts = await postModel.viewallPost();
-        // get user or use hardcoded guest user.
+        // get user from session or use hardcoded guest user
         const currentUser = tempuserhehe.getcurrentUser(req) || {
             username: 'Guest',
             email: 'guest@example.com',
@@ -38,7 +38,7 @@ async function getpostID(req, res) {
             return res.status(404).send('post not found, getpostID error.');
         }
         const comments = await commentModel.getcommentsbyID(postId);
-        // hardcoded guest user if temp user not found
+        // get user from session or use hardcoded guest user
         const currentUser = tempuserhehe.getcurrentUser(req) || {
             username: 'Guest',
             email: 'guest@example.com',
@@ -63,7 +63,7 @@ async function createPost(req, res) {
     try {
         const { title, content, category, tags } = req.body;
         
-        // get the current user if guest user then redirect to the login page
+        // get the current user from session
         const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
@@ -82,6 +82,8 @@ async function createPost(req, res) {
             posts: currentUser.posts + 1
         });
         currentUser.posts += 1;
+        // Update session with new post count
+        req.session.user = currentUser;
         
         res.redirect('/');
     } catch (error) {
@@ -96,16 +98,16 @@ async function updatePost(req, res) {
         const postId = req.params.id;
         const { title, content, tags } = req.body;
         
-        // get current temp user (temporary w/o session management)
+        // get current user from session
         const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
         }
         
-        // check current temp user
+        // check ownership
         const post = await postModel.getpostID(postId);
         if (post.author !== currentUser.username) {
-            return res.status(403).send('you cannot edit this post because you are not the user (temperror)');
+            return res.status(403).send('you cannot edit this post because you are not the user');
         }
         
         await postModel.updatePost(postId, {
@@ -133,7 +135,7 @@ async function deletePost(req, res) {
         
         const post = await postModel.getpostID(postId);
         if (post.author !== currentUser.username) {
-            return res.status(403).send('you cannot delete this post because you are not the user (temperror)');
+            return res.status(403).send('you cannot delete this post because you are not the user');
         }
         
         await postModel.deletePost(postId);
@@ -143,6 +145,8 @@ async function deletePost(req, res) {
             posts: Math.max(0, currentUser.posts - 1)
         });
         currentUser.posts = Math.max(0, currentUser.posts - 1);
+        // Update session with new post count
+        req.session.user = currentUser;
         
         res.redirect('/');
     } catch (error) {
@@ -188,7 +192,7 @@ async function editPost(req, res) {
             return res.redirect('/login');
         }
         if (post.author !== currentUser.username) {
-            return res.status(403).send('you cannot delete this post because you are not the user (temperror)');
+            return res.status(403).send('you cannot edit this post because you are not the user');
         }
         
         res.render('editPost', { 
