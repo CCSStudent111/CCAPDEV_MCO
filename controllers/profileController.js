@@ -13,6 +13,7 @@ async function login(req, res) {
         // Retrieve user from database
         const user = await userModel.getuserUsername(username);
 <<<<<<< HEAD
+<<<<<<< HEAD
         
         const bcrypt = require('bcrypt');
         if (user && await bcrypt.compare(password, user.password)) {
@@ -34,6 +35,8 @@ async function login(req, res) {
             // Redirect after successful login
             return res.redirect('/'); 
 =======
+=======
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 
         if (!user) {
             return res.render('login', { 
@@ -53,6 +56,9 @@ async function login(req, res) {
         if (isMatch) {
             tempuserhehe.setcurrentUser(user);
             return res.redirect('/');
+<<<<<<< HEAD
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
         } else {
             return res.render('login', { 
@@ -67,7 +73,11 @@ async function login(req, res) {
             title: 'Login', 
             layout: 'loginLayout', 
 <<<<<<< HEAD
+<<<<<<< HEAD
             error: 'An error occurred during login' 
+=======
+            error: 'Server error. Please try again later.' 
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
             error: 'Server error. Please try again later.' 
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
@@ -78,8 +88,11 @@ async function login(req, res) {
 async function register(req, res) {
     try {
 <<<<<<< HEAD
+<<<<<<< HEAD
         const { password, username, email } = req.body;
 =======
+=======
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
         const { email, password, username } = req.body;
 
         // Ensure password is always a string
@@ -95,12 +108,16 @@ async function register(req, res) {
         }
 
         // Check if username already exists
+<<<<<<< HEAD
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
         const existingUser = await userModel.getuserUsername(username);
         if (existingUser) {
             return res.render('register', { 
                 title: 'Register', 
                 layout: 'loginLayout', 
+<<<<<<< HEAD
 <<<<<<< HEAD
                 error: 'This username already exists, please try another name.' 
             });
@@ -118,6 +135,11 @@ async function register(req, res) {
                 error: 'This username is already used, please use another one.' 
             });
         }
+=======
+                error: 'This username is already used, please use another one.' 
+            });
+        }
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 
         // Hash password correctly
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
@@ -133,6 +155,9 @@ async function register(req, res) {
 
         // Set the current user
         tempuserhehe.setcurrentUser({
+<<<<<<< HEAD
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
             username,
             email, 
@@ -160,12 +185,17 @@ async function register(req, res) {
 // logout
 function logout(req, res) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     req.session.destroy((err) => {
         if (err) {
             console.error("Error destroying session:", err);
         }
         res.redirect('/login');
     });
+=======
+    tempuserhehe.setcurrentUser(null);
+    res.render('logout', { title: 'Logout' });
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
     tempuserhehe.setcurrentUser(null);
     res.render('logout', { title: 'Logout' });

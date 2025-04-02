@@ -32,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 // Set up session middleware
 app.use(session({
 <<<<<<< HEAD
+<<<<<<< HEAD
     secret: process.env.SESSION_SECRET || 'my_secret_key',
     resave: false,
     saveUninitialized: false,
@@ -39,6 +40,15 @@ app.use(session({
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000  // 1 day
+=======
+    secret: 'my_secret_key',  // Use session secret from environment variable
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production (ito yung sa https)
+        maxAge: 30 * 24 * 60 * 60 * 1000,  // Default cookie expiration (30 days - common value)
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
     secret: 'my_secret_key',  // Use session secret from environment variable
     resave: false,
@@ -79,7 +89,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     res.locals.user = req.session.user || null;
+=======
+    res.locals.currentUser = tempuserhehe.getcurrentUser();
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
     res.locals.currentUser = tempuserhehe.getcurrentUser();
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
@@ -120,6 +134,7 @@ function authenticateSession(req, res, next) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
         // User is authenticated, proceed
@@ -131,6 +146,8 @@ function isAuthenticated(req, res, next) {
     }
 }
 
+=======
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
 // Profile Route - Only accessible to authenticated users
