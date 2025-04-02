@@ -14,6 +14,7 @@ async function login(req, res) {
         const user = await userModel.getuserUsername(username);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         
         const bcrypt = require('bcrypt');
         if (user && await bcrypt.compare(password, user.password)) {
@@ -37,6 +38,8 @@ async function login(req, res) {
 =======
 =======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 
         if (!user) {
             return res.render('login', { 
@@ -57,6 +60,9 @@ async function login(req, res) {
             tempuserhehe.setcurrentUser(user);
             return res.redirect('/');
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
@@ -74,7 +80,11 @@ async function login(req, res) {
             layout: 'loginLayout', 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             error: 'An error occurred during login' 
+=======
+            error: 'Server error. Please try again later.' 
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
             error: 'Server error. Please try again later.' 
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
@@ -89,8 +99,11 @@ async function register(req, res) {
     try {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         const { password, username, email } = req.body;
 =======
+=======
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
         const { email, password, username } = req.body;
@@ -109,6 +122,9 @@ async function register(req, res) {
 
         // Check if username already exists
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
@@ -117,6 +133,7 @@ async function register(req, res) {
             return res.render('register', { 
                 title: 'Register', 
                 layout: 'loginLayout', 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 error: 'This username already exists, please try another name.' 
@@ -140,6 +157,11 @@ async function register(req, res) {
             });
         }
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
+                error: 'This username is already used, please use another one.' 
+            });
+        }
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 
         // Hash password correctly
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
@@ -156,6 +178,9 @@ async function register(req, res) {
         // Set the current user
         tempuserhehe.setcurrentUser({
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
+=======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
 >>>>>>> parent of 5099ab2 (changed controllers and app.js)
@@ -186,12 +211,17 @@ async function register(req, res) {
 function logout(req, res) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     req.session.destroy((err) => {
         if (err) {
             console.error("Error destroying session:", err);
         }
         res.redirect('/login');
     });
+=======
+    tempuserhehe.setcurrentUser(null);
+    res.render('logout', { title: 'Logout' });
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 =======
     tempuserhehe.setcurrentUser(null);
     res.render('logout', { title: 'Logout' });
