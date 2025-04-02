@@ -7,12 +7,6 @@ async function connect() {
     return await db.getCollection(collection);
 }
 
-/*async function connect() {
-    await client.connect();
-    return client.db(dbName).collection(collection);
-}
-*/
-
 
 // get comment by id
 async function getcommentsbyID(postId) {//gets all the comments for specific post

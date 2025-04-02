@@ -29,7 +29,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up session middleware with MongoStore for persistent sessions
+
 // Set up session middleware with MongoStore for persistent sessions
 app.use(session({
     secret: process.env.SESSION_SECRET || 'my_secret_key',
