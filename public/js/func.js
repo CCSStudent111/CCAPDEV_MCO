@@ -73,16 +73,9 @@ function toggleProfilebar() { //profile bar toggle
 function createPost(){ 
     document.getElementById("createpostbox").style.display = "flex";
 }
+
 function closePost(){ 
     document.getElementById("createpostbox").style.display = "none";
-}
-function editProfile(userId){ 
-    document.getElementById("editprofilebox").style.display = "flex";
-    document.querySelector(".editprofilecontent form").action = `/profile/edit/${userId}`;
-}
-
-function closeEditProfile(){ 
-    document.getElementById("editprofilebox").style.display = "none";
 }
 
 function toggleCommentbox(button) {
