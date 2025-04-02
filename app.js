@@ -31,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up session middleware
 app.use(session({
+<<<<<<< HEAD
     secret: process.env.SESSION_SECRET || 'my_secret_key',
     resave: false,
     saveUninitialized: false,
@@ -38,6 +39,15 @@ app.use(session({
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000  // 1 day
+=======
+    secret: 'my_secret_key',  // Use session secret from environment variable
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production (ito yung sa https)
+        maxAge: 30 * 24 * 60 * 60 * 1000,  // Default cookie expiration (30 days - common value)
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
     }
 }));
 
@@ -68,14 +78,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use((req, res, next) => {
+<<<<<<< HEAD
     res.locals.user = req.session.user || null;
+=======
+    res.locals.currentUser = tempuserhehe.getcurrentUser();
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
     next();
 });
 
 //access page
-app.post('/post/create', isAuthenticated, postController.createPost);
-app.post('/post/update/:id', isAuthenticated, postController.updatePost);
-app.post('/post/delete/:id', isAuthenticated, postController.deletePost);
 app.get('/', postController.viewallPost);
 app.get('/login', (req, res) => res.render('login', { title: 'Login', layout: 'loginLayout' }));
 app.get('/register', (req, res) => res.render('register', { title: 'Register', layout: 'loginLayout' }));
@@ -108,6 +119,7 @@ function authenticateSession(req, res, next) {
     next();
 }
 
+<<<<<<< HEAD
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
         // User is authenticated, proceed
@@ -119,6 +131,8 @@ function isAuthenticated(req, res, next) {
     }
 }
 
+=======
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
 // Profile Route - Only accessible to authenticated users
 app.get('/profile', authenticateSession, (req, res) => {
     res.status(200).json({ message: 'Welcome to your profile', user: req.session.user });

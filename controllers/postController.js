@@ -6,6 +6,7 @@ const userModel = require('../models/userModel');
 async function viewallPost(req, res) {
     try {
         const posts = await postModel.viewallPost();
+<<<<<<< HEAD
         
         // Use session user or create guest user for display only
         let currentUser;
@@ -20,6 +21,16 @@ async function viewallPost(req, res) {
                 comments: 0
             };
         }
+=======
+        // get user or use hardcoded gest user.
+        const currentUser = tempuserhehe.getcurrentUser() || {
+            username: 'Guest',
+            email: 'guest@example.com',
+            joinDate: new Date().toLocaleDateString(),
+            posts: 0,
+            comments: 0
+        };
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
         
         res.render('index', { 
             title: 'Forum Home', 
@@ -43,6 +54,7 @@ async function getpostID(req, res) {
             return res.status(404).send('Post not found.');
         }
         const comments = await commentModel.getcommentsbyID(postId);
+<<<<<<< HEAD
         
         // Use session user or create guest user for display only
         let currentUser;
@@ -58,6 +70,16 @@ async function getpostID(req, res) {
             };
         }
         
+=======
+        // hardcoded guest user if temp user not found
+        const currentUser = tempuserhehe.getcurrentUser() || {
+            username: 'Guest',
+            email: 'guest@example.com',
+            joinDate: new Date().toLocaleDateString(),
+            posts: 0,
+            comments: 0
+        };
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
         res.render('post', { 
             title: post.title, 
             post: post,
@@ -73,8 +95,16 @@ async function getpostID(req, res) {
 // Create a new post
 async function createPost(req, res) {
     try {
+<<<<<<< HEAD
         // Check for authenticated user first
         if (!req.session.user) {
+=======
+        const { title, content, category, tags } = req.body;
+        
+        // get the current user if guest user then redirect to the login page
+        const currentUser = tempuserhehe.getcurrentUser();
+        if (!currentUser) {
+>>>>>>> parent of 5099ab2 (changed controllers and app.js)
             return res.redirect('/login');
         }
         
@@ -109,7 +139,7 @@ async function updatePost(req, res) {
         const { title, content, tags } = req.body;
         
         // get current temp user (temporary w/o session management)
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -138,7 +168,7 @@ async function deletePost(req, res) {
     try {
         const postId = req.params.id;
         
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -195,7 +225,7 @@ async function editPost(req, res) {
         if (!post) {
             return res.status(404).send('post not found');
         }
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
