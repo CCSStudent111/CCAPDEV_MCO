@@ -31,11 +31,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up session middleware
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'my_secret_key',  // Better to use environment variable
+    secret: process.env.SESSION_SECRET || 'my_secret_key',
     resave: false,
-    saveUninitialized: false,  // Changed to false for better security
+    saveUninitialized: false,
     cookie: {
-        httpOnly: true, 
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000  // 1 day
     }
@@ -100,38 +100,6 @@ app.post('/comment/add', commentController.addComment);
 app.post('/comment/edit/:id', commentController.editComment);
 app.post('/comment/delete/:id', commentController.deleteComment);
 
-// Login Route - Handles user authentication
-app.post('/login', async (req, res) => {
-    const { username, password, rememberMe } = req.body;  // rememberMe is true or false
-
-    // Use your db module
-    const db = require('./db');
-
-    const user = await db.collection(usersCollection).findOne({ username });
-
-    if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Compare provided password with the stored hashed password
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordCorrect) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Store user session data (user information)
-    req.session.user = { username: user.username, email: user.email };
-
-    // Adjust session expiration based on "Remember Me" flag
-    if (rememberMe) {
-        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;  // 30 days
-    } else {
-        req.session.cookie.maxAge = 15 * 60 * 1000;  // 15 minutes
-    }
-
-    res.status(200).json({ message: 'Login successful' });
-});
 
 // Middleware to protect routes (ensure the user is authenticated)
 function authenticateSession(req, res, next) {
@@ -142,9 +110,11 @@ function authenticateSession(req, res, next) {
 }
 
 function isAuthenticated(req, res, next) {
-    if (req.session.user) {
+    if (req.session && req.session.user) {
         next();
     } else {
+        // Save the requested URL to redirect back after login
+        req.session.returnTo = req.originalUrl;
         res.redirect('/login');
     }
 }

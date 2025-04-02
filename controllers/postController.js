@@ -7,14 +7,20 @@ const tempuserhehe = require('../models/tempuserhehe');
 async function viewallPost(req, res) {
     try {
         const posts = await postModel.viewallPost();
-        // get user or use hardcoded gest user.
-        const currentUser = req.session.user || {
-            username: 'Guest',
-            email: 'guest@example.com',
-            joinDate: new Date().toLocaleDateString(),
-            posts: 0,
-            comments: 0
-        };
+        
+        // Use session user or create guest user for display only
+        let currentUser;
+        if (req.session.user) {
+            currentUser = req.session.user;
+        } else {
+            currentUser = {
+                username: 'Guest',
+                email: 'guest@example.com',
+                joinDate: new Date().toLocaleDateString(),
+                posts: 0,
+                comments: 0
+            };
+        }
         
         res.render('index', { 
             title: 'Forum Home', 
@@ -35,22 +41,29 @@ async function getpostID(req, res) {
         const post = await postModel.getpostID(postId);
         
         if (!post) {
-            return res.status(404).send('post not found, getpostID error.');
+            return res.status(404).send('Post not found.');
         }
         const comments = await commentModel.getcommentsbyID(postId);
-        // hardcoded guest user if temp user not found
-        const currentUser = req.session.user || {
-            username: 'Guest',
-            email: 'guest@example.com',
-            joinDate: new Date().toLocaleDateString(),
-            posts: 0,
-            comments: 0
-        };
+        
+        // Use session user or create guest user for display only
+        let currentUser;
+        if (req.session.user) {
+            currentUser = req.session.user;
+        } else {
+            currentUser = {
+                username: 'Guest',
+                email: 'guest@example.com',
+                joinDate: new Date().toLocaleDateString(),
+                posts: 0,
+                comments: 0
+            };
+        }
+        
         res.render('post', { 
             title: post.title, 
             post: post,
             comments: comments,
-        user: currentUser 
+            user: currentUser 
         });
     } catch (error) {
         console.error('Error getting post:', error);
@@ -61,13 +74,13 @@ async function getpostID(req, res) {
 // Create a new post
 async function createPost(req, res) {
     try {
-        const { title, content, category, tags } = req.body;
-        
-        // get the current user if guest user then redirect to the login page
-        const currentUser = req.session.user;
-        if (!currentUser) {
+        // Check for authenticated user first
+        if (!req.session.user) {
             return res.redirect('/login');
         }
+        
+        const { title, content, category, tags } = req.body;
+        const currentUser = req.session.user;
 
         const Post = await postModel.createPost({
             title,
@@ -85,8 +98,8 @@ async function createPost(req, res) {
         
         res.redirect('/');
     } catch (error) {
-        console.error('error creating the post:', error);
-        res.status(500).send('error creating the post');
+        console.error('Error creating the post:', error);
+        res.status(500).send('Error creating the post');
     }
 }
 
