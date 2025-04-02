@@ -1,5 +1,6 @@
 const { MongoClient } = require('mongodb');
-const dURL = "mongodb://127.0.0.1:27017/";
+//const dURL = "mongodb://127.0.0.1:27017/";
+const dURL = process.env.MONGODB_URI;
 const client = new MongoClient(dURL);
 const bcrypt = require("bcrypt");
 
@@ -188,4 +189,36 @@ async function hashPasswords(users) {
     return users;
 }
 
+export function connectToMongo(callback) {
+    client.connect()
+        .then(() => {
+            console.log("Connected to MongoDB");
+            callback();
+        })
+        .catch(err => {
+            console.error("MongoDB Connection Error:", err);
+            callback(err);
+        });
+}
+
+export function getDb(dbName = process.env.DB_NAME) {
+    return client.db(dbName);
+}
+
+function signalHandler() {
+    console.log("Closing MongoDB Connection...");
+    client.close()
+        .then(() => {
+            console.log("MongoDB Connection Closed");
+            process.exit();
+        })
+        .catch(err => {
+            console.error("Error closing MongoDB connection:", err);
+            process.exit(1);
+        });
+}
+
 module.exports = { initializeDatabase };
+process.on("SIGINT", signalHandler);
+process.on("SIGTERM", signalHandler);
+process.on("SIGQUIT", signalHandler);
