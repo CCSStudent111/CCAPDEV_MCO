@@ -1,4 +1,5 @@
 const commentModel = require('../models/commentModel');
+const tempuserhehe = require('../models/tempuserhehe');
 const userModel = require('../models/userModel');
 
 //add comment
@@ -7,7 +8,7 @@ async function addComment(req, res) {
         const { content, postId } = req.body;
         
         //go to login if no temp user
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -41,7 +42,7 @@ async function deleteComment(req, res) {
         }
         
         // get temp user
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -76,7 +77,7 @@ async function editComment(req, res) {
             return res.status(404).json({ success: false, error: 'Comment not found.' });
         }
         
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
             return res.status(401).json({ success: false, error: 'login.. to edit comment.' });
         }

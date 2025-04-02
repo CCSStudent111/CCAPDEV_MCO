@@ -1,36 +1,20 @@
 const postModel = require('../models/postModel');
 const commentModel = require('../models/commentModel');
 const userModel = require('../models/userModel');
+const tempuserhehe = require('../models/tempuserhehe');
 
 //get post
 async function viewallPost(req, res) {
     try {
         const posts = await postModel.viewallPost();
-<<<<<<< HEAD
-        
-        // Use session user or create guest user for display only
-        let currentUser;
-        if (req.session.user) {
-            currentUser = req.session.user;
-        } else {
-            currentUser = {
-                username: 'Guest',
-                email: 'guest@example.com',
-                joinDate: new Date().toLocaleDateString(),
-                posts: 0,
-                comments: 0
-            };
-        }
-=======
         // get user or use hardcoded gest user.
-        const currentUser = tempuserhehe.getcurrentUser() || {
+        const currentUser = req.session.user || {
             username: 'Guest',
             email: 'guest@example.com',
             joinDate: new Date().toLocaleDateString(),
             posts: 0,
             comments: 0
         };
->>>>>>> parent of 5099ab2 (changed controllers and app.js)
         
         res.render('index', { 
             title: 'Forum Home', 
@@ -51,40 +35,22 @@ async function getpostID(req, res) {
         const post = await postModel.getpostID(postId);
         
         if (!post) {
-            return res.status(404).send('Post not found.');
+            return res.status(404).send('post not found, getpostID error.');
         }
         const comments = await commentModel.getcommentsbyID(postId);
-<<<<<<< HEAD
-        
-        // Use session user or create guest user for display only
-        let currentUser;
-        if (req.session.user) {
-            currentUser = req.session.user;
-        } else {
-            currentUser = {
-                username: 'Guest',
-                email: 'guest@example.com',
-                joinDate: new Date().toLocaleDateString(),
-                posts: 0,
-                comments: 0
-            };
-        }
-        
-=======
         // hardcoded guest user if temp user not found
-        const currentUser = tempuserhehe.getcurrentUser() || {
+        const currentUser = req.session.user || {
             username: 'Guest',
             email: 'guest@example.com',
             joinDate: new Date().toLocaleDateString(),
             posts: 0,
             comments: 0
         };
->>>>>>> parent of 5099ab2 (changed controllers and app.js)
         res.render('post', { 
             title: post.title, 
             post: post,
             comments: comments,
-            user: currentUser 
+        user: currentUser 
         });
     } catch (error) {
         console.error('Error getting post:', error);
@@ -95,21 +61,13 @@ async function getpostID(req, res) {
 // Create a new post
 async function createPost(req, res) {
     try {
-<<<<<<< HEAD
-        // Check for authenticated user first
-        if (!req.session.user) {
-=======
         const { title, content, category, tags } = req.body;
         
         // get the current user if guest user then redirect to the login page
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
->>>>>>> parent of 5099ab2 (changed controllers and app.js)
             return res.redirect('/login');
         }
-        
-        const { title, content, category, tags } = req.body;
-        const currentUser = req.session.user;
 
         const Post = await postModel.createPost({
             title,
@@ -127,8 +85,8 @@ async function createPost(req, res) {
         
         res.redirect('/');
     } catch (error) {
-        console.error('Error creating the post:', error);
-        res.status(500).send('Error creating the post');
+        console.error('error creating the post:', error);
+        res.status(500).send('error creating the post');
     }
 }
 
@@ -139,7 +97,7 @@ async function updatePost(req, res) {
         const { title, content, tags } = req.body;
         
         // get current temp user (temporary w/o session management)
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -168,7 +126,7 @@ async function deletePost(req, res) {
     try {
         const postId = req.params.id;
         
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -225,7 +183,7 @@ async function editPost(req, res) {
         if (!post) {
             return res.status(404).send('post not found');
         }
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = req.session.user;
         if (!currentUser) {
             return res.redirect('/login');
         }
