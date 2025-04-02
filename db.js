@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 
 // Use environment variable or fall back to local for development
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/";
-const DB_NAME = "forumdb";
+
 
 // Create a MongoDB client that can be reused
 const client = new MongoClient(MONGODB_URI);
