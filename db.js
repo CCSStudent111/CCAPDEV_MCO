@@ -1,4 +1,4 @@
-// Create a new file called "db.js" in your root directory
+// db.js - Modified version
 const { MongoClient } = require('mongodb');
 
 // Use environment variable or fall back to local for development
@@ -40,5 +40,6 @@ process.on("SIGQUIT", signalHandler);
 module.exports = {
     getCollection,
     closeConnection,
-    client
+    client,
+    DB_NAME  // Export DB_NAME
 };

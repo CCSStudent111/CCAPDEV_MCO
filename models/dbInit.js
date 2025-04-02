@@ -1,11 +1,9 @@
 const bcrypt = require("bcrypt");
 const db = require('../db');
 
-const databaseName = "forumdb";
 const usersCollection = "users";
 const postsCollection = "posts";
 const commentsCollection = "comments";
-
 
 // Sample data
 const sampleUsers = [
@@ -107,26 +105,25 @@ const sampleComments = [
     }
 ];
 
-
-
 // Initialize the database
 async function initializeDatabase() {
     try {
         await db.client.connect();
         console.log('Connected to MongoDB');
         
-        const dbObj = db.client.db(databaseName);
+        const dbObj = db.client.db(db.DB_NAME);
         
-        const usersCount = await db.collection(usersCollection).countDocuments();
-        const postsCount = await db.collection(postsCollection).countDocuments();
-        const commentsCount = await db.collection(commentsCollection).countDocuments();
+        // Use the dbObj to access collections
+        const usersCount = await dbObj.collection(usersCollection).countDocuments();
+        const postsCount = await dbObj.collection(postsCollection).countDocuments();
+        const commentsCount = await dbObj.collection(commentsCollection).countDocuments();
 
         if (usersCount === 0) {
             const hashedUsers = await hashPasswords(sampleUsers);
-            await db.collection(usersCollection).insertMany(hashedUsers);
+            await dbObj.collection(usersCollection).insertMany(hashedUsers);
         }
         if (postsCount === 0) {
-            const postsResult = await db.collection(postsCollection).insertMany(samplePosts);
+            const postsResult = await dbObj.collection(postsCollection).insertMany(samplePosts);
             const postIds = Object.values(postsResult.insertedIds);
 
             // Update sample comments with post IDs
@@ -137,7 +134,7 @@ async function initializeDatabase() {
             sampleComments[4].postId = postIds[4].toString();
 
             if (commentsCount === 0) {
-                await db.collection(commentsCollection).insertMany(sampleComments);
+                await dbObj.collection(commentsCollection).insertMany(sampleComments);
             } 
         }
     }
@@ -146,6 +143,19 @@ async function initializeDatabase() {
     } finally {
         // Don't close the connection here since other parts of the app need it
     }
+}
+
+// You need to implement the hashPasswords function
+async function hashPasswords(users) {
+    const hashedUsers = [];
+    for (const user of users) {
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        hashedUsers.push({
+            ...user,
+            password: hashedPassword
+        });
+    }
+    return hashedUsers;
 }
 
 module.exports = { initializeDatabase };
