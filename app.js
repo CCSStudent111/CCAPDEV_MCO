@@ -31,13 +31,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up session middleware
 app.use(session({
-    secret: 'my_secret_key',  // Use session secret from environment variable
+    secret: process.env.SESSION_SECRET || 'my_secret_key',  // Better to use environment variable
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,  // Changed to false for better security
     cookie: {
         httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production (ito yung sa https)
-        maxAge: 30 * 24 * 60 * 60 * 1000,  // Default cookie expiration (30 days - common value)
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000  // 1 day
     }
 }));
 
@@ -69,11 +69,14 @@ app.use(bodyParser.json());
 
 
 app.use((req, res, next) => {
-    res.locals.currentUser = tempuserhehe.getcurrentUser();
+    res.locals.currentUser = req.session.user || null;
     next();
 });
 
 //access page
+app.post('/post/create', isAuthenticated, postController.createPost);
+app.post('/post/update/:id', isAuthenticated, postController.updatePost);
+app.post('/post/delete/:id', isAuthenticated, postController.deletePost);
 app.get('/', postController.viewallPost);
 app.get('/login', (req, res) => res.render('login', { title: 'Login', layout: 'loginLayout' }));
 app.get('/register', (req, res) => res.render('register', { title: 'Register', layout: 'loginLayout' }));
@@ -136,6 +139,14 @@ function authenticateSession(req, res, next) {
         return res.status(401).json({ message: 'Unauthorized' }); // return status 401 (meaning unauthorized user)
     }
     next();
+}
+
+function isAuthenticated(req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
 }
 
 // Profile Route - Only accessible to authenticated users
