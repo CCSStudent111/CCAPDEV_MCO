@@ -8,6 +8,11 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/";
 // Create a MongoDB client that can be reused
 const client = new MongoClient(MONGODB_URI);
 
+
+export function getDB(dbName = process.env.DB_NAME){
+    return client.db(dbName);
+}
+
 // Connect to database and get collection
 async function getCollection(collectionName) {
     await client.connect();
