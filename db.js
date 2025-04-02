@@ -7,11 +7,11 @@ const DB_NAME = process.env.DB_NAME || "forumdb";
 
 // Create a MongoDB client with proper options for Atlas
 const client = new MongoClient(MONGODB_URI, {
-    // These options help with Atlas connectivity
     useNewUrlParser: true,
     useUnifiedTopology: true,
     maxPoolSize: 50,
-    connectTimeoutMS: 30000
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 45000
 });
 
 // Connect to database and get collection

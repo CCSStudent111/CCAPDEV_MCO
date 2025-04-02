@@ -30,6 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Set up session middleware with MongoStore for persistent sessions
+// Set up session middleware with MongoStore for persistent sessions
 app.use(session({
     secret: process.env.SESSION_SECRET || 'my_secret_key',
     resave: false,
@@ -38,13 +39,11 @@ app.use(session({
         mongoUrl: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/forumdb",
         ttl: 14 * 24 * 60 * 60, // = 14 days
         autoRemove: 'native',
-        crypto: {
-            secret: process.env.SESSION_SECRET || 'my_secret_key'
-        }
+        // Remove crypto option as it's causing issues
     }),
     cookie: {
         httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Set to false for now to troubleshoot
         maxAge: 30 * 24 * 60 * 60 * 1000,  // 30 days
         sameSite: 'lax'
     }
@@ -54,6 +53,16 @@ app.use(session({
 const profileController = require('./controllers/profileController');
 const postController = require('./controllers/postController');
 const commentController = require('./controllers/commentController');
+
+// Add a route to check session status
+app.get('/session-check', (req, res) => {
+    res.json({
+        sessionID: req.sessionID,
+        hasSession: !!req.session,
+        user: req.session.user || 'No user in session',
+        cookies: req.headers.cookie
+    });
+});
 
 app.engine('hbs', exphbs.engine({
     extname: 'hbs',

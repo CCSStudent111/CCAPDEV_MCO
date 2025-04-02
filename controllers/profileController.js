@@ -47,6 +47,14 @@ async function login(req, res) {
             console.log("User logged in successfully:", sessionUser.username);
             console.log("Session after login:", req.sessionID);
             
+            if (!req.session) {
+                console.error("Session object is undefined!");
+                return res.status(500).render('login', {
+                    title: 'Login',
+                    layout: 'loginLayout',
+                    error: 'Session error. Please try again.'
+                });
+            }
             // Save session explicitly before redirect
             req.session.save(err => {
                 if (err) {
@@ -136,6 +144,15 @@ async function register(req, res) {
         
         console.log("User registered successfully:", sessionUser.username);
         console.log("Session after registration:", req.sessionID);
+        
+        if (!req.session) {
+            console.error("Session object is undefined!");
+            return res.status(500).render('login', {
+                title: 'Login',
+                layout: 'loginLayout',
+                error: 'Session error. Please try again.'
+            });
+        }
         
         // Save session explicitly before redirect
         req.session.save(err => {

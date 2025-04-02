@@ -5,6 +5,7 @@ function setcurrentUser(req, user) {
         return;
     }
     
+    // Ensure we're dealing with string IDs
     const sessionUser = {
         _id: user._id ? user._id.toString() : null,
         username: user.username,
@@ -15,7 +16,15 @@ function setcurrentUser(req, user) {
     };
     
     req.session.user = sessionUser;
-    console.log(`User set in session: ${sessionUser.username}`);
+    console.log(`User set in session: ${sessionUser.username} with ID: ${sessionUser._id}`);
+    
+    // Force session save
+    if (req.session.save) {
+        req.session.save(err => {
+            if (err) console.error("Error saving session:", err);
+            else console.log("Session saved successfully");
+        });
+    }
 }
 
 function getcurrentUser(req) {
