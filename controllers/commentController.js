@@ -1,5 +1,4 @@
 const commentModel = require('../models/commentModel');
-const tempuserhehe = require('../models/tempuserhehe');
 const userModel = require('../models/userModel');
 
 //add comment

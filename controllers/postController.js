@@ -1,7 +1,6 @@
 const postModel = require('../models/postModel');
 const commentModel = require('../models/commentModel');
 const userModel = require('../models/userModel');
-const tempuserhehe = require('../models/tempuserhehe');
 
 //get post
 async function viewallPost(req, res) {

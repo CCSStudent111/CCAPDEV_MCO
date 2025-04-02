@@ -1,7 +1,7 @@
 const userModel = require('../models/userModel');
-const tempuserhehe = require('../models/tempuserhehe');
 
 //user login
+// Make sure the login function correctly sets the session
 async function login(req, res) {
     try {
         const { password, username } = req.body;
@@ -9,11 +9,11 @@ async function login(req, res) {
         
         const bcrypt = require('bcrypt');
         if (user && await bcrypt.compare(password, user.password)) {
-            // Store complete user info in session
+            // Store user info in session
             req.session.user = {
                 username: user.username,
                 _id: user._id,
-                email: user.email || '', // Add email field for consistency
+                email: user.email || '',
                 joinDate: user.joinDate,
                 posts: user.posts,
                 comments: user.comments
@@ -24,6 +24,7 @@ async function login(req, res) {
                 req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
             }
             
+            // Redirect after successful login
             return res.redirect('/'); 
         } else {
             return res.render('login', { 
@@ -85,12 +86,11 @@ async function register(req, res) {
 
 // logout
 function logout(req, res) {
-    // Clear the session instead of global variable
     req.session.destroy((err) => {
         if (err) {
             console.error("Error destroying session:", err);
         }
-        res.render('logout', { title: 'Logout' });
+        res.redirect('/login');
     });
 }
 

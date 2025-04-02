@@ -64,12 +64,11 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+
 
 
 app.use((req, res, next) => {
-    res.locals.currentUser = req.session.user || null;
+    res.locals.user = req.session.user || null;
     next();
 });
 
@@ -111,9 +110,10 @@ function authenticateSession(req, res, next) {
 
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
+        // User is authenticated, proceed
         next();
     } else {
-        // Save the requested URL to redirect back after login
+        // User is not authenticated, redirect to login
         req.session.returnTo = req.originalUrl;
         res.redirect('/login');
     }
@@ -125,15 +125,6 @@ app.get('/profile', authenticateSession, (req, res) => {
 });
 
 // Logout Route - Destroys the session
-app.post('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Could not log out' });
-        }
-        res.clearCookie('connect.sid');  // Clear session cookie
-        res.status(200).json({ message: 'Logged out successfully' });
-    });
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
