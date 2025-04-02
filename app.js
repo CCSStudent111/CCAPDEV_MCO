@@ -102,7 +102,7 @@ app.post('/login', async (req, res) => {
     const { username, password, rememberMe } = req.body;  // rememberMe is true or false
 
     // Use your db module
-    const db = require('./models/db');
+    const db = require('./db');
 
     const user = await db.collection(usersCollection).findOne({ username });
 
