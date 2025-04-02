@@ -7,8 +7,8 @@ const tempuserhehe = require('../models/tempuserhehe');
 async function viewallPost(req, res) {
     try {
         const posts = await postModel.viewallPost();
-        // get user or use hardcoded gest user.
-        const currentUser = tempuserhehe.getcurrentUser() || {
+        // get user or use hardcoded guest user.
+        const currentUser = tempuserhehe.getcurrentUser(req) || {
             username: 'Guest',
             email: 'guest@example.com',
             joinDate: new Date().toLocaleDateString(),
@@ -39,7 +39,7 @@ async function getpostID(req, res) {
         }
         const comments = await commentModel.getcommentsbyID(postId);
         // hardcoded guest user if temp user not found
-        const currentUser = tempuserhehe.getcurrentUser() || {
+        const currentUser = tempuserhehe.getcurrentUser(req) || {
             username: 'Guest',
             email: 'guest@example.com',
             joinDate: new Date().toLocaleDateString(),
@@ -50,7 +50,7 @@ async function getpostID(req, res) {
             title: post.title, 
             post: post,
             comments: comments,
-        user: currentUser 
+            user: currentUser 
         });
     } catch (error) {
         console.error('Error getting post:', error);
@@ -64,7 +64,7 @@ async function createPost(req, res) {
         const { title, content, category, tags } = req.body;
         
         // get the current user if guest user then redirect to the login page
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -97,7 +97,7 @@ async function updatePost(req, res) {
         const { title, content, tags } = req.body;
         
         // get current temp user (temporary w/o session management)
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -126,7 +126,7 @@ async function deletePost(req, res) {
     try {
         const postId = req.params.id;
         
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -183,7 +183,7 @@ async function editPost(req, res) {
         if (!post) {
             return res.status(404).send('post not found');
         }
-        const currentUser = tempuserhehe.getcurrentUser();
+        const currentUser = tempuserhehe.getcurrentUser(req);
         if (!currentUser) {
             return res.redirect('/login');
         }

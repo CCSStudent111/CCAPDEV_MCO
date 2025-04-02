@@ -29,7 +29,7 @@ async function login(req, res) {
         console.log('Password Match:', isMatch);
 
         if (isMatch) {
-            tempuserhehe.setcurrentUser(user);
+            tempuserhehe.setcurrentUser(req, user);
             return res.redirect('/');
         } else {
             return res.render('login', { 
@@ -87,7 +87,7 @@ async function register(req, res) {
         });
 
         // Set the current user
-        tempuserhehe.setcurrentUser({
+        tempuserhehe.setcurrentUser(req, {
             username,
             email, 
             password: hashedPassword,
@@ -109,10 +109,9 @@ async function register(req, res) {
     }
 }
 
-
 // logout
 function logout(req, res) {
-    tempuserhehe.setcurrentUser(null);
+    tempuserhehe.setcurrentUser(req, null);
     res.render('logout', { title: 'Logout' });
 }
 
