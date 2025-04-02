@@ -1,13 +1,18 @@
-const { MongoClient, ObjectId } = require('mongodb');
-const dURL = "mongodb://127.0.0.1:27017/";
-const client = new MongoClient(dURL);
-const dbName = "forumdb";
+const { ObjectId } = require('mongodb');
+const db = require('../db');
 const collection = "comments";
 
+// Connect to the comments collection
 async function connect() {
+    return await db.getCollection(collection);
+}
+
+/*async function connect() {
     await client.connect();
     return client.db(dbName).collection(collection);
 }
+*/
+
 
 // get comment by id
 async function getcommentsbyID(postId) {//gets all the comments for specific post
@@ -38,8 +43,9 @@ async function deleteComment(id) {
     return await db.deleteOne({ _id: new ObjectId(id) });
 }
 
+// For the closeConnection function, use:
 async function closeConnection() {
-    await client.close();
+    await db.closeConnection();
 }
 
 module.exports = {
@@ -50,3 +56,4 @@ module.exports = {
     updateComment,
     closeConnection
 };
+

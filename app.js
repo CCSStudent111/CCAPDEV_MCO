@@ -21,6 +21,7 @@ const { initializeDatabase } = require('./models/dbInit');
 const tempuserhehe = require('./models/tempuserhehe');
 const app = express();
 
+
 //Initialize and reset the sample data, this will reset the state. comment this out if you want the data to not be reset when running app.js againn
 initializeDatabase().catch(console.error);
 
@@ -100,7 +101,9 @@ app.post('/comment/delete/:id', commentController.deleteComment);
 app.post('/login', async (req, res) => {
     const { username, password, rememberMe } = req.body;  // rememberMe is true or false
 
-    const db = await connectToDB();
+    // Use your db module
+    const db = require('./models/db');
+
     const user = await db.collection(usersCollection).findOne({ username });
 
     if (!user) {
@@ -149,6 +152,11 @@ app.post('/logout', (req, res) => {
         res.clearCookie('connect.sid');  // Clear session cookie
         res.status(200).json({ message: 'Logged out successfully' });
     });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
 
 // Start the Express server

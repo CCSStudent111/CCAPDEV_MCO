@@ -1,15 +1,10 @@
-const { MongoClient, ObjectId } = require('mongodb');
-const dURL = "mongodb://127.0.0.1:27017/";
-const client = new MongoClient(dURL);
-const dbName = "forumdb";
+const { ObjectId } = require('mongodb');
+const db = require('../db');
 const collection = "users";
 
-
 async function connect() {
-    await client.connect();
-    return client.db(dbName).collection(collection);
+    return await db.getCollection(collection);
 }
-
 // get users
 async function getAllUsers() {
     const db = await connect();
