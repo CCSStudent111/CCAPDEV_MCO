@@ -8,7 +8,7 @@ async function viewallPost(req, res) {
     try {
         const posts = await postModel.viewallPost();
         // get user or use hardcoded gest user.
-        const currentUser = req.session.user || {
+        const currentUser = tempuserhehe.getcurrentUser() || {
             username: 'Guest',
             email: 'guest@example.com',
             joinDate: new Date().toLocaleDateString(),
@@ -39,7 +39,7 @@ async function getpostID(req, res) {
         }
         const comments = await commentModel.getcommentsbyID(postId);
         // hardcoded guest user if temp user not found
-        const currentUser = req.session.user || {
+        const currentUser = tempuserhehe.getcurrentUser() || {
             username: 'Guest',
             email: 'guest@example.com',
             joinDate: new Date().toLocaleDateString(),
@@ -64,7 +64,7 @@ async function createPost(req, res) {
         const { title, content, category, tags } = req.body;
         
         // get the current user if guest user then redirect to the login page
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -97,7 +97,7 @@ async function updatePost(req, res) {
         const { title, content, tags } = req.body;
         
         // get current temp user (temporary w/o session management)
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -126,7 +126,7 @@ async function deletePost(req, res) {
     try {
         const postId = req.params.id;
         
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -183,7 +183,7 @@ async function editPost(req, res) {
         if (!post) {
             return res.status(404).send('post not found');
         }
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }

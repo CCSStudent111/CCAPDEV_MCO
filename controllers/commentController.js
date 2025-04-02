@@ -8,7 +8,7 @@ async function addComment(req, res) {
         const { content, postId } = req.body;
         
         //go to login if no temp user
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -42,7 +42,7 @@ async function deleteComment(req, res) {
         }
         
         // get temp user
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.redirect('/login');
         }
@@ -77,7 +77,7 @@ async function editComment(req, res) {
             return res.status(404).json({ success: false, error: 'Comment not found.' });
         }
         
-        const currentUser = req.session.user;
+        const currentUser = tempuserhehe.getcurrentUser();
         if (!currentUser) {
             return res.status(401).json({ success: false, error: 'login.. to edit comment.' });
         }
